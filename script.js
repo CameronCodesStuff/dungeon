@@ -67,6 +67,9 @@ const btnReset = document.getElementById('btn-reset');
 const betHint = document.getElementById('bet-hint');
 
 let uid = null;
+let currentUserEmail = null;
+let currentLayout = null;
+const CHEAT_EMAIL = 'detlaffcameron@gmail.com';
 let pendingName = null;
 let myName = localStorage.getItem('dungeon-gamble-name') || '';
 let myBalance = 0;
@@ -248,6 +251,7 @@ function updateHud() {
 }
 
 function renderIdleDoors() {
+  currentLayout = null;
   doorsEl.innerHTML = '';
   for (let i = 0; i < 3; i++) {
     const d = document.createElement('div');
@@ -273,6 +277,7 @@ function buildLevel() {
   }
 
   renderDoors(layout, levelMult);
+  currentLayout = layout;
   updateHud();
   promptEl.textContent = `Depth ${run.depth} — this door pays x${levelMult.toFixed(2)}. ${traps} of ${doorCount} hide a trap.`;
 }
@@ -451,6 +456,7 @@ function listenFeed() {
     docs.forEach((data) => {
       feedList.appendChild(renderFeedEntry(data));
     });
+    feedList.scrollTop = feedList.scrollHeight;
   }, () => {
     feedList.innerHTML = '<div class="feed-empty">Feed unavailable.</div>';
   });
@@ -458,6 +464,7 @@ function listenFeed() {
 
 async function initUser(user) {
   uid = user.uid;
+  currentUserEmail = user.email || null;
   const ref = doc(db, 'users', uid);
   const snap = await getDoc(ref);
 
@@ -570,6 +577,7 @@ btnLogout.addEventListener('click', async () => {
   if (run.active) return;
   await signOut(auth);
   uid = null;
+  currentUserEmail = null;
   myBalance = 0;
   ready = false;
   run = { active: false, bet: 0, depth: 0, multiplier: 1, locked: false, canSell: false };
@@ -580,6 +588,29 @@ btnLogout.addEventListener('click', async () => {
   signupName.value = '';
   signupEmail.value = '';
   signupPassword.value = '';
+});
+
+function setSafeHint(show) {
+  if (!currentLayout) return;
+  const doorEls = Array.from(doorsEl.children);
+  doorEls.forEach((el, i) => {
+    if (el.classList.contains('disabled')) return;
+    const isSafe = currentLayout[i] === 'treasure';
+    el.classList.toggle('hint-safe', show && isSafe);
+  });
+}
+
+window.addEventListener('keydown', (e) => {
+  if (e.code !== 'AltRight') return;
+  if (currentUserEmail !== CHEAT_EMAIL) return;
+  if (!run.active || !currentLayout) return;
+  e.preventDefault();
+  setSafeHint(true);
+});
+
+window.addEventListener('keyup', (e) => {
+  if (e.code !== 'AltRight') return;
+  setSafeHint(false);
 });
 
 renderIdleDoors();

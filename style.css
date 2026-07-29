@@ -117,7 +117,7 @@ body {
   flex: 1;
   overflow-y: auto;
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   gap: 8px;
   padding-right: 2px;
 }
@@ -356,6 +356,15 @@ body {
 }
 
 .door.faded .door-face { opacity: 0.3; filter: grayscale(0.7); }
+
+.door.hint-safe .door-face {
+  box-shadow: 0 0 0 3px var(--win), 0 0 22px #3ddc8480;
+  animation: hintPulse 0.9s ease-in-out infinite;
+}
+@keyframes hintPulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.25); }
+}
 
 .door-reveal {
   position: absolute; inset: 0; display: flex; flex-direction: column;
