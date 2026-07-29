@@ -26,7 +26,7 @@ const STARTING_BALANCE = 1000;
 const MIN_BET = 10;
 const HOUSE_EDGE = 0.95;
 const CHIP_VALUES = [10, 25, 50, 100, 250];
-const FEED_LIMIT = 30;
+const FEED_LIMIT = 50;
 
 const nameInput = document.getElementById('name-input');
 const balanceDisplay = document.getElementById('balance-display');
