@@ -4,7 +4,8 @@ import {
   onSnapshot, collection, addDoc, query, orderBy, limit, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 import {
-  getAuth, signInAnonymously, onAuthStateChanged
+  getAuth, signInAnonymously, onAuthStateChanged,
+  createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -30,6 +31,19 @@ const FEED_LIMIT = 30;
 const nameInput = document.getElementById('name-input');
 const balanceDisplay = document.getElementById('balance-display');
 const feedList = document.getElementById('feed-list');
+const btnLogout = document.getElementById('btn-logout');
+
+const authOverlay = document.getElementById('auth-overlay');
+const authTabs = document.querySelectorAll('.auth-tab');
+const formLogin = document.getElementById('form-login');
+const formSignup = document.getElementById('form-signup');
+const loginEmail = document.getElementById('login-email');
+const loginPassword = document.getElementById('login-password');
+const signupName = document.getElementById('signup-name');
+const signupEmail = document.getElementById('signup-email');
+const signupPassword = document.getElementById('signup-password');
+const authError = document.getElementById('auth-error');
+const btnGuest = document.getElementById('btn-guest');
 
 const doorsEl = document.getElementById('doors');
 const promptEl = document.getElementById('prompt-text');
@@ -53,6 +67,7 @@ const btnReset = document.getElementById('btn-reset');
 const betHint = document.getElementById('bet-hint');
 
 let uid = null;
+let pendingName = null;
 let myName = localStorage.getItem('dungeon-gamble-name') || '';
 let myBalance = 0;
 let ready = false;
@@ -189,6 +204,8 @@ amountInput.addEventListener('input', () => {
 function refreshBetPanel() {
   balanceDisplay.textContent = formatMoney(myBalance);
   syncChipSelection();
+  btnLogout.disabled = run.active;
+  btnLogout.title = run.active ? 'Finish your run before logging out' : 'Log Out';
 
   if (!ready) {
     btnBuy.disabled = true;
@@ -235,6 +252,7 @@ function renderIdleDoors() {
   for (let i = 0; i < 3; i++) {
     const d = document.createElement('div');
     d.className = 'door locked';
+    d.style.setProperty('--sheen-delay', `${(Math.random() * 2.4).toFixed(2)}s`);
     d.innerHTML = `<div class="door-face"><span class="door-number">🔒</span></div><div class="door-reveal"></div>`;
     doorsEl.appendChild(d);
   }
@@ -265,6 +283,7 @@ function renderDoors(layout, levelMult) {
   layout.forEach((kind, i) => {
     const doorEl = document.createElement('div');
     doorEl.className = 'door';
+    doorEl.style.setProperty('--sheen-delay', `${(Math.random() * 2.4).toFixed(2)}s`);
     doorEl.innerHTML = `<div class="door-face"><span class="door-number">${i + 1}</span></div><div class="door-reveal"></div>`;
     doorEl.addEventListener('click', () => handlePick(doorEl, kind, levelMult));
     doorsEl.appendChild(doorEl);
@@ -443,8 +462,9 @@ async function initUser(user) {
   const snap = await getDoc(ref);
 
   if (!snap.exists()) {
-    const initialName = myName || randomName();
+    const initialName = pendingName || myName || randomName();
     myName = initialName;
+    pendingName = null;
     localStorage.setItem('dungeon-gamble-name', initialName);
     await setDoc(ref, {
       name: initialName,
@@ -475,16 +495,106 @@ async function initUser(user) {
   listenFeed();
 }
 
+function friendlyAuthError(err) {
+  const code = err && err.code ? err.code : '';
+  const map = {
+    'auth/invalid-email': 'That email address looks invalid.',
+    'auth/missing-password': 'Enter a password.',
+    'auth/weak-password': 'Password must be at least 6 characters.',
+    'auth/email-already-in-use': 'An account with that email already exists.',
+    'auth/invalid-credential': 'Incorrect email or password.',
+    'auth/wrong-password': 'Incorrect email or password.',
+    'auth/user-not-found': 'No account found with that email.',
+    'auth/too-many-requests': 'Too many attempts. Try again later.',
+    'auth/network-request-failed': 'Network error. Check your connection.',
+  };
+  return map[code] || 'Something went wrong. Please try again.';
+}
+
+function setAuthError(msg) {
+  authError.textContent = msg || '';
+}
+
+function switchAuthTab(tab) {
+  authTabs.forEach((t) => t.classList.toggle('active', t.dataset.tab === tab));
+  formLogin.classList.toggle('hidden', tab !== 'login');
+  formSignup.classList.toggle('hidden', tab !== 'signup');
+  setAuthError('');
+}
+
+authTabs.forEach((tab) => {
+  tab.addEventListener('click', () => switchAuthTab(tab.dataset.tab));
+});
+
+formLogin.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  setAuthError('');
+  const submitBtn = formLogin.querySelector('.auth-submit');
+  submitBtn.disabled = true;
+  try {
+    await signInWithEmailAndPassword(auth, loginEmail.value.trim(), loginPassword.value);
+  } catch (err) {
+    setAuthError(friendlyAuthError(err));
+  }
+  submitBtn.disabled = false;
+});
+
+formSignup.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  setAuthError('');
+  const submitBtn = formSignup.querySelector('.auth-submit');
+  submitBtn.disabled = true;
+  const chosenName = signupName.value.trim().slice(0, 16);
+  pendingName = chosenName || randomName();
+  try {
+    await createUserWithEmailAndPassword(auth, signupEmail.value.trim(), signupPassword.value);
+  } catch (err) {
+    pendingName = null;
+    setAuthError(friendlyAuthError(err));
+  }
+  submitBtn.disabled = false;
+});
+
+btnGuest.addEventListener('click', async () => {
+  setAuthError('');
+  btnGuest.disabled = true;
+  try {
+    await signInAnonymously(auth);
+  } catch (err) {
+    setAuthError(friendlyAuthError(err));
+  }
+  btnGuest.disabled = false;
+});
+
+btnLogout.addEventListener('click', async () => {
+  if (run.active) return;
+  await signOut(auth);
+  uid = null;
+  myBalance = 0;
+  ready = false;
+  run = { active: false, bet: 0, depth: 0, multiplier: 1, locked: false, canSell: false };
+  renderIdleDoors();
+  promptEl.textContent = 'Connecting to the vault...';
+  loginEmail.value = '';
+  loginPassword.value = '';
+  signupName.value = '';
+  signupEmail.value = '';
+  signupPassword.value = '';
+});
+
 renderIdleDoors();
 renderChips();
 refreshBetPanel();
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
+    authOverlay.classList.add('hidden');
+    btnLogout.classList.remove('hidden');
     initUser(user);
   } else {
-    signInAnonymously(auth).catch(() => {
-      betHint.textContent = 'Could not connect. Check your connection.';
-    });
+    authOverlay.classList.remove('hidden');
+    btnLogout.classList.add('hidden');
+    ready = false;
+    refreshBetPanel();
   }
 });

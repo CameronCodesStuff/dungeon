@@ -12,6 +12,38 @@
 <div class="torch-glow left"></div>
 <div class="torch-glow right"></div>
 
+<div id="auth-overlay" class="auth-overlay">
+  <div class="auth-card">
+    <h2 class="auth-title">DUNGEON<span>GAMBLE</span></h2>
+    <p class="auth-subtitle">Sign in to keep your gold between visits.</p>
+
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab active" data-tab="login">Log In</button>
+      <button type="button" class="auth-tab" data-tab="signup">Sign Up</button>
+    </div>
+
+    <form id="form-login" class="auth-form">
+      <input type="email" id="login-email" placeholder="Email" autocomplete="username" required>
+      <input type="password" id="login-password" placeholder="Password" autocomplete="current-password" required>
+      <button type="submit" class="btn btn-buy auth-submit">Log In</button>
+    </form>
+
+    <form id="form-signup" class="auth-form hidden">
+      <input type="text" id="signup-name" placeholder="Display name" maxlength="16" required>
+      <input type="email" id="signup-email" placeholder="Email" autocomplete="username" required>
+      <input type="password" id="signup-password" placeholder="Password (6+ characters)" autocomplete="new-password" required>
+      <button type="submit" class="btn btn-buy auth-submit">Create Account</button>
+    </form>
+
+    <p class="auth-error" id="auth-error"></p>
+
+    <div class="auth-divider"><span>or</span></div>
+
+    <button id="btn-guest" class="btn btn-ghost auth-guest">Continue as Guest</button>
+    <p class="auth-hint">Guest progress stays on this device only.</p>
+  </div>
+</div>
+
 <div id="app">
 
   <div class="layout">
@@ -29,6 +61,7 @@
           <span class="balance-label">Balance</span>
           <span class="balance-value" id="balance-display">—</span>
         </div>
+        <button id="btn-logout" class="logout-btn hidden" title="Log Out">⏻</button>
       </div>
 
       <div class="marquee">

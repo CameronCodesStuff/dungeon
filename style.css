@@ -303,12 +303,25 @@ body {
   overflow: hidden;
 }
 .door-face::before {
-  content: ''; position: absolute; top: 0; left: -60%; width: 40%; height: 100%;
-  background: linear-gradient(90deg, transparent, #ffffff50, transparent);
+  content: ''; position: absolute; top: 0; left: -60%; width: 30%; height: 100%;
+  background: linear-gradient(90deg, transparent, #ffffff45, transparent);
   transform: skewX(-20deg);
-  animation: sheen 3.2s ease-in-out infinite;
+  animation: sheen 3.6s ease-in-out infinite;
+  animation-delay: var(--sheen-delay, 0s);
+  will-change: left;
 }
-@keyframes sheen { 0% { left: -60%; } 40% { left: 130%; } 100% { left: 130%; } }
+@keyframes sheen {
+  0%, 12% { left: -40%; }
+  45%, 100% { left: 130%; }
+}
+
+.door.locked .door-face::before,
+.door.disabled .door-face::before,
+.door.chosen .door-face::before,
+.door.faded .door-face::before {
+  animation: none;
+  opacity: 0;
+}
 
 .door-number {
   font-family: 'Cinzel', serif; font-weight: 800; color: #2a1c0c; font-size: 1.2rem;
@@ -432,6 +445,82 @@ body {
 #log { color: var(--text-dim); opacity: 0.65; font-size: 0.8rem; font-style: italic; text-align: center; transition: opacity 0.3s ease; }
 
 .hidden { display: none !important; }
+
+.logout-btn {
+  width: 32px; height: 32px; border-radius: 50%; border: 1px solid #ffffff20;
+  background: var(--stone); color: var(--text-dim); font-size: 0.9rem; cursor: pointer;
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  transition: transform 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.logout-btn:hover { color: var(--trap-bright); border-color: var(--trap-bright); transform: rotate(-8deg); }
+.logout-btn:disabled { opacity: 0.3; pointer-events: none; }
+
+/* Auth overlay */
+.auth-overlay {
+  position: fixed; inset: 0; z-index: 50;
+  background: radial-gradient(ellipse at 50% 20%, #1a3226 0%, #050302 70%);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.auth-overlay.hidden { display: none; }
+
+.auth-card {
+  width: 100%; max-width: 340px;
+  background: linear-gradient(180deg, var(--stone-light), var(--stone));
+  border: 1px solid #00000060;
+  border-radius: 14px;
+  box-shadow: inset 0 1px 0 #ffffff10, 0 20px 50px #000000a0, 0 0 0 6px #1a1008, 0 0 0 8px #e3b04b30;
+  padding: 28px 26px 22px;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  text-align: center;
+}
+
+.auth-title {
+  font-family: 'Cinzel', serif; font-weight: 800; font-size: 1.5rem;
+  letter-spacing: 0.05em; color: var(--text);
+}
+.auth-title span {
+  display: block; color: var(--gold-bright); font-size: 1.25rem;
+  text-shadow: 0 0 20px #e3b04b60;
+}
+.auth-subtitle { color: var(--text-dim); font-size: 0.8rem; margin-top: -6px; }
+
+.auth-tabs {
+  display: flex; width: 100%; border-radius: 8px; overflow: hidden;
+  border: 1px solid #00000060;
+}
+.auth-tab {
+  flex: 1; padding: 9px 0; background: var(--felt); color: var(--text-dim);
+  border: none; font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 0.06em;
+  text-transform: uppercase; font-weight: 700; cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.auth-tab.active { background: var(--gold); color: #2a1c0c; }
+
+.auth-form {
+  width: 100%; display: flex; flex-direction: column; gap: 10px;
+}
+.auth-form input {
+  width: 100%; background: #00000030; border: 1px solid #ffffff20; border-radius: 7px;
+  color: var(--text); font-family: 'Spectral', serif; font-size: 0.9rem; padding: 10px 12px;
+}
+.auth-form input:focus { outline: none; border-color: var(--gold); }
+.auth-submit { width: 100%; margin-top: 2px; }
+
+.auth-error {
+  color: var(--lose); font-size: 0.78rem; min-height: 1.1em;
+}
+
+.auth-divider {
+  width: 100%; display: flex; align-items: center; gap: 10px;
+  color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+}
+.auth-divider::before, .auth-divider::after {
+  content: ''; flex: 1; height: 1px; background: #ffffff20;
+}
+
+.auth-guest { width: 100%; }
+.auth-hint { color: var(--text-dim); opacity: 0.6; font-size: 0.72rem; font-style: italic; }
 
 @media (max-width: 980px) {
   .layout { grid-template-columns: 1fr; grid-template-rows: auto auto auto; overflow-y: auto; }
