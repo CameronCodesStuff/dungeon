@@ -139,11 +139,11 @@ function log(msg) {
 }
 
 function doorsForDepth(depth) {
-  return Math.min(3 + Math.floor(depth / 2), 9);
+  return Math.min(4 + Math.floor((depth - 1) / 2), 9);
 }
 function trapsForDepth(depth) {
   const doors = doorsForDepth(depth);
-  const raw = 1 + Math.floor(depth / 2);
+  const raw = Math.floor((depth - 1) / 3) + 1;
   return Math.min(raw, doors - 1);
 }
 function multiplierForDepth(depth) {

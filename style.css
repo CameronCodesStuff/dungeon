@@ -303,16 +303,20 @@ body {
   overflow: hidden;
 }
 .door-face::before {
-  content: ''; position: absolute; top: 0; left: -60%; width: 30%; height: 100%;
-  background: linear-gradient(90deg, transparent, #ffffff45, transparent);
+  content: ''; position: absolute; top: 0; left: -40%; width: 30%; height: 100%;
+  background: linear-gradient(90deg, transparent, #ffffff55, transparent);
   transform: skewX(-20deg);
+  opacity: 0;
   animation: sheen 3.6s ease-in-out infinite;
   animation-delay: var(--sheen-delay, 0s);
-  will-change: left;
+  will-change: left, opacity;
 }
 @keyframes sheen {
-  0%, 12% { left: -40%; }
-  45%, 100% { left: 130%; }
+  0% { left: -40%; opacity: 0; }
+  12% { opacity: 0.9; }
+  55% { left: 120%; opacity: 0.9; }
+  72% { opacity: 0; }
+  100% { left: 120%; opacity: 0; }
 }
 
 .door.locked .door-face::before,
