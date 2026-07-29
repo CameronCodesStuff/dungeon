@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dungeon Gamble</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="vignette"></div>
+<div class="torch-glow left"></div>
+<div class="torch-glow right"></div>
+
+<div id="app">
+
+  <div class="layout">
+
+    <aside id="feed-panel" class="panel feed-panel">
+      <h2 class="panel-title">Live Feed</h2>
+      <div id="feed-list" class="feed-list"></div>
+    </aside>
+
+    <main id="game-panel" class="panel game-panel">
+
+      <div class="player-row">
+        <input id="name-input" class="name-input" maxlength="16" spellcheck="false" placeholder="Adventurer">
+        <div class="balance-chip">
+          <span class="balance-label">Balance</span>
+          <span class="balance-value" id="balance-display">—</span>
+        </div>
+      </div>
+
+      <div class="marquee">
+        <span class="bulb" style="--i:0"></span><span class="bulb" style="--i:1"></span><span class="bulb" style="--i:2"></span><span class="bulb" style="--i:3"></span><span class="bulb" style="--i:4"></span><span class="bulb" style="--i:5"></span><span class="bulb" style="--i:6"></span><span class="bulb" style="--i:7"></span>
+      </div>
+      <h1 class="title">DUNGEON<span>GAMBLE</span></h1>
+
+      <div class="hud">
+        <div class="hud-item">
+          <span class="hud-label">Depth</span>
+          <span class="hud-value" id="hud-depth">0</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">Multiplier</span>
+          <span class="hud-value gold" id="hud-mult">x1.00</span>
+        </div>
+        <div class="hud-item pot">
+          <span class="hud-label">Payout</span>
+          <span class="hud-value gold" id="hud-payout">$0</span>
+        </div>
+      </div>
+
+      <div class="risk-meter">
+        <div class="risk-fill" id="risk-fill"></div>
+      </div>
+
+      <p class="prompt" id="prompt-text">Connecting to the vault...</p>
+      <div id="doors"></div>
+
+    </main>
+
+    <aside id="bet-panel" class="panel bet-panel">
+      <h2 class="panel-title">Position</h2>
+
+      <div class="pos-stats">
+        <div class="pos-stat">
+          <span class="pos-label">Bet</span>
+          <span class="pos-value" id="pos-bet">$0</span>
+        </div>
+        <div class="pos-stat">
+          <span class="pos-label">Multiplier</span>
+          <span class="pos-value" id="pos-mult">x1.00</span>
+        </div>
+        <div class="pos-stat">
+          <span class="pos-label">Payout</span>
+          <span class="pos-value gold" id="pos-payout">$0</span>
+        </div>
+      </div>
+
+      <div class="amount-block">
+        <div class="amount-label">Amount</div>
+        <div class="amount-row">
+          <button class="stepper" id="amt-minus">−</button>
+          <input type="number" id="amount-input" min="10" step="10" value="50">
+          <button class="stepper" id="amt-plus">+</button>
+        </div>
+        <div class="chip-row" id="chip-row"></div>
+      </div>
+
+      <button id="btn-buy" class="btn btn-buy">Buy</button>
+      <button id="btn-sell" class="btn btn-sell hidden">Sell</button>
+      <p class="hint" id="bet-hint">Connecting...</p>
+      <button id="btn-reset" class="btn btn-ghost hidden">Reset Bankroll</button>
+    </aside>
+
+  </div>
+
+  <footer id="log-wrap">
+    <div id="log"></div>
+  </footer>
+
+</div>
+
+<script type="module" src="script.js"></script>
+</body>
+</html>
